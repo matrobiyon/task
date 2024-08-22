@@ -10,13 +10,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -33,25 +34,47 @@ import com.togitech.ccp.component.TogiCountryCodePicker
 import tj.example.zavodteplic.R
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun DrawCardContent(isRegistered: Boolean, changeIsRegistered: () -> Unit) {
+fun DrawCardContent(
+    wantToLoggIn: Boolean,
+    isRegisterLoading: Boolean,
+    isLoggingLoading: Boolean,
+    isRegisterLoaded: Boolean,
+    changeIsRegistered: () -> Unit,
+    showSnackbar: (message: String) -> Unit,
+    registerUser: (phone: String, userName: String, name: String) -> Unit,
+    sendAuthCode: (phone: String) -> Unit
+) {
+
+    val usernameRegex = remember { Regex("^[A-Za-z0-9_-]{6,}") }
+    var username: String by rememberSaveable { mutableStateOf("") }
+    var isLoginError by rememberSaveable { mutableStateOf(false) }
+
+    var name: String by rememberSaveable { mutableStateOf("") }
 
     var fullPhoneNumber: String by rememberSaveable { mutableStateOf("") }
-    var username: String by rememberSaveable { mutableStateOf("") }
+    var isPhoneNumberError by rememberSaveable { mutableStateOf(false) }
+
+    var smsCode by rememberSaveable { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .padding(32.dp),
     ) {
-        if (isRegistered) {
-            OutlinedTextField(
+        if (wantToLoggIn) {
+            TogiCountryCodePicker(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                label = { Text(text = "Номер телефона") },
-                value = "",
-                onValueChange = {}
+                    .fillMaxWidth(),
+                onValueChange = { (code, phone), isValid ->
+                    fullPhoneNumber = code + phone
+                    isPhoneNumberError = !isValid
+                },
+                label = { Text("Phone Number") },
+                showCountryCode = true,
+                showPlaceholder = true,
+                initialCountryIsoCode = Locale.getDefault().country,
+                shape = RectangleShape,
             )
         } else {
             TogiCountryCodePicker(
@@ -59,6 +82,7 @@ fun DrawCardContent(isRegistered: Boolean, changeIsRegistered: () -> Unit) {
                     .fillMaxWidth(),
                 onValueChange = { (code, phone), isValid ->
                     fullPhoneNumber = code + phone
+                    isPhoneNumberError = !isValid
                 },
                 label = { Text("Phone Number") },
                 showCountryCode = true,
@@ -72,45 +96,86 @@ fun DrawCardContent(isRegistered: Boolean, changeIsRegistered: () -> Unit) {
                     .padding(vertical = 8.dp),
                 label = { Text(text = "Логин") },
                 value = username,
-                onValueChange = { username = it }
+                onValueChange = {
+                    username = it
+                    isLoginError = !usernameRegex.matches(it)
+                },
+                isError = isLoginError,
+                supportingText = {
+                    if (isLoginError) {
+                        Text(
+                            text = "o\tЗаглавные латинские буквы: от A до Z (26 символов)\n" +
+                                    "o\tСтрочные латинские буквы: от a до z (26 символов)\n" +
+                                    "o\tЦифры от 0 до 9 (10 символов)\n" +
+                                    "o\tСимволы: -_ (2 символа)\n" +
+                                    "o\tДлина: > 5 \n",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
             )
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
                 label = { Text(text = "Имя") },
-                value = "",
-                onValueChange = {}
+                value = name,
+                onValueChange = {
+                    name = it
+                }
             )
 
         }
+
+
         Spacer(modifier = Modifier.width(32.dp))
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .height(70.dp)
-                    .padding(top = 16.dp),
-                shape = RoundedCornerShape(16.dp),
-                onClick = { /* Handle login */ }
-            ) {
-                Text(
-                    text = if (isRegistered) "Войти" else "Регистрация",
-                    fontSize = 18.sp,
-                    fontFamily = FontFamily(
-                        Font(R.font.roboto_regular)
-                    )
-                )
+            if (isLoggingLoading || isRegisterLoading) {
+                CircularProgressIndicator()
+            } else {
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .height(70.dp)
+                        .padding(top = 16.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    onClick = {
+                        if ((isPhoneNumberError || isLoginError || name.isEmpty()) && !wantToLoggIn) {
+                            showSnackbar("Заполните все поля")
+                        } else if (wantToLoggIn) {
+                            sendAuthCode(fullPhoneNumber)
+                        } else {
+                            registerUser(
+                                fullPhoneNumber,
+                                username,
+                                name
+                            )
+                        }
+                    }
+                ) {
+                    if (isRegisterLoading) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.secondary)
+                    } else {
+                        Text(
+                            text = if (wantToLoggIn) "Войти" else "Регистрация",
+                            fontSize = 18.sp,
+                            fontFamily = FontFamily(
+                                Font(R.font.roboto_regular)
+                            )
+                        )
+                    }
+                }
             }
+
             Spacer(modifier = Modifier.width(16.dp))
             ClickableText(
                 modifier = Modifier.padding(top = 8.dp),
                 text = buildAnnotatedString {
-                    if (isRegistered) {
+                    if (wantToLoggIn) {
                         append("У вас нет аккаунта? ")
                         withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
                             append("Регистрация")
@@ -129,3 +194,4 @@ fun DrawCardContent(isRegistered: Boolean, changeIsRegistered: () -> Unit) {
         Spacer(modifier = Modifier.width(32.dp))
     }
 }
+

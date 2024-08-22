@@ -26,13 +26,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class AuthModule () {
 
-
-
-
     @Provides
     @Singleton
     fun getInterceptor(@ApplicationContext context: Context) : Interceptor {
-        return AuthInterceptor(CoreSharedPreference(context).getToken()?:"null")
+        return AuthInterceptor(CoreSharedPreference(context).getAccessToken()?:"null")
     }
 
 
@@ -53,28 +50,14 @@ class AuthModule () {
 
     @Provides
     @Singleton
-    fun provideCountryDB(
-        app : Application
-    ) : CountryDB {
-        return Room.databaseBuilder(
-            app,CountryDB::class.java,"countries_db"
-        ).build()
-    }
-
-    @Provides
-    @Singleton
     fun providesAuthRepository(authApi: AuthApi, ) : AuthRepository {
         return AuthRepository(authApi)
     }
 
-
-//    fun decodeToken(token : String) = jwtHelper.decode(token)
-
-//    fun saveToken(token : String)
-//    fun getToken() : String
-
     object TAGS {
         const val CORE_SHARED_PREFERENCE = "core_share_pref"
-        const val TOKEN = "token"
+        const val ACCESS_TOKEN = "access_token"
+        const val REFRESH_TOKEN = "refresh_token"
+        const val USER_ID = "user_id"
     }
 }

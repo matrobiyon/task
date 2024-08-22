@@ -1,14 +1,16 @@
 package tj.example.zavodteplic.utils
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import tj.example.zavodteplic.auth.presentation.ui.AuthScreen
 import tj.example.zavodteplic.auth.presentation.ui.SplashScreen
+import tj.example.zavodteplic.chats.presantation.ui.ChatsScreen
 
 @Composable
-fun MainNavigation(navController : NavHostController) {
+fun MainNavigation(navController : NavHostController,snackbarHostState: SnackbarHostState) {
 
     NavHost(navController = navController, startDestination = NavigationTags.SPLASH_SCREEN){
         composable(route = NavigationTags.SPLASH_SCREEN){
@@ -16,7 +18,11 @@ fun MainNavigation(navController : NavHostController) {
         }
 
         composable(route = NavigationTags.AUTH_SCREEN){
-            AuthScreen()
+            AuthScreen(snackbarHostState,navController)
+        }
+
+        composable(route = NavigationTags.CHATS_SCREEN){
+            ChatsScreen()
         }
     }
 
@@ -25,4 +31,5 @@ fun MainNavigation(navController : NavHostController) {
 object NavigationTags {
     const val SPLASH_SCREEN = "SplashScreen"
     const val AUTH_SCREEN = "AuthScreen"
+    const val CHATS_SCREEN = "ChatsScreen"
 }

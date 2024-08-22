@@ -1,4 +1,4 @@
-package tj.example.zavodteplic.auth.presentation.event
+package tj.example.zavodteplic.auth.util
 
 import androidx.compose.ui.text.input.OffsetMapping
 
@@ -11,4 +11,6 @@ class TextFieldOffsetMapping : OffsetMapping {
         return offset - 1
     }
 }
+
+
 
