@@ -1,7 +1,9 @@
 package tj.example.zavodteplic.auth.di
 
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,6 +13,8 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import tj.example.zavodteplic.auth.data.local.CountryDB
+import tj.example.zavodteplic.auth.data.local.model.Country
 import tj.example.zavodteplic.auth.data.remote.AuthApi
 import tj.example.zavodteplic.auth.data.remote.interceptor.AuthInterceptor
 import tj.example.zavodteplic.auth.data.repository.AuthRepository
@@ -21,6 +25,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class AuthModule () {
+
 
 
 
@@ -48,7 +53,17 @@ class AuthModule () {
 
     @Provides
     @Singleton
-    fun providesAuthRepository(authApi: AuthApi) : AuthRepository {
+    fun provideCountryDB(
+        app : Application
+    ) : CountryDB {
+        return Room.databaseBuilder(
+            app,CountryDB::class.java,"countries_db"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun providesAuthRepository(authApi: AuthApi, ) : AuthRepository {
         return AuthRepository(authApi)
     }
 

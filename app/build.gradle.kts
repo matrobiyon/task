@@ -91,4 +91,14 @@ dependencies {
 
     // Coroutine Lifecycle Scopes
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    //Pick number library
+    implementation(libs.androidx.material)
+    implementation(libs.jetpack.compose.country.code.picker.emoji)
+
 }
