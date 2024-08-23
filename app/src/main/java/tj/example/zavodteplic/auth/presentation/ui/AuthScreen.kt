@@ -1,5 +1,6 @@
 package tj.example.zavodteplic.auth.presentation.ui
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -95,7 +96,7 @@ fun AuthScreen(
         animationSpec = tween(durationMillis = 1000)
     )
 
-    if (viewModel.isRegisterLoaded || viewModel.isLoggingLoaded) {
+    if (viewModel.isRegisterLoaded || viewModel.isLoggedSuccess) {
         offsetSms = 0.dp
         offsetAuth = width.dp
     }
@@ -107,7 +108,7 @@ fun AuthScreen(
             }
         }
     } else if (viewModel.checkAuthCodeData?.isUserExists == false) {
-        isRegistered = true
+        isRegistered = false
     }
 
     var fullPhoneNumber by remember { mutableStateOf("") }
@@ -193,15 +194,23 @@ fun AuthScreen(
                         .padding(16.dp),
                     textAlign = TextAlign.Center
                 )
-                if (viewModel.isCheckAuthLoading){
-                    CircularProgressIndicator()
-                }else {
-                    Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                if (viewModel.isCheckAuthLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+
+                    Box(modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 32.dp), contentAlignment = Alignment.Center) {
                         OutlinedTextField(
                             value = smsCodeEntered,
                             onValueChange = {
                                 if (it.length <= 6) smsCodeEntered = it
-                                if (it.length == 6) viewModel.checkAuthCode(fullPhoneNumber,it)
+                                if (it.length == 6) viewModel.checkAuthCode(fullPhoneNumber, it)
                             },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )

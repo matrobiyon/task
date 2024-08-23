@@ -33,6 +33,7 @@ class AuthViewModel @Inject constructor(
     var isLoggingLoading by mutableStateOf(false)
         private set
     var isLoggingLoaded by mutableStateOf(false)
+    var isLoggedSuccess by mutableStateOf(false)
 
     var isCheckAuthLoading by mutableStateOf(false)
         private set
@@ -89,6 +90,7 @@ class AuthViewModel @Inject constructor(
             authRepository.sendAuthCode(phone).collectLatest { result ->
                 when (result) {
                     is Resource.Success -> {
+                        isLoggedSuccess = true
                         isLoggingLoading = false
                         isLoggingLoaded = true
                     }
@@ -136,6 +138,7 @@ class AuthViewModel @Inject constructor(
     fun resetDatas() {
         isRegisterLoaded = false
         isLoggingLoaded = false
+        isLoggedSuccess = false
         checkAuthCodeData = null
     }
 }

@@ -28,7 +28,6 @@ class CoreSharedPreference(private val sharedPreferences: SharedPreferences) {
     }
 
     fun setAccessToken(token : String?) {
-        Log.d("TAG", "setAccessToken: $token")
         sharedPreferences.edit().putString(TAGS.ACCESS_TOKEN,token).apply()
     }
 

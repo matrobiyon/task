@@ -1,5 +1,6 @@
 package tj.example.zavodteplic.auth.presentation.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -147,8 +148,10 @@ fun DrawCardContent(
                         if ((isPhoneNumberError || isLoginError || name.isEmpty()) && !wantToLoggIn) {
                             showSnackbar("Заполните все поля")
                         } else if (wantToLoggIn) {
+                            Log.d("TAG", "DrawCardContent: login")
                             sendAuthCode(fullPhoneNumber)
                         } else {
+                            Log.d("TAG", "DrawCardContent: else")
                             registerUser(
                                 fullPhoneNumber,
                                 username,
