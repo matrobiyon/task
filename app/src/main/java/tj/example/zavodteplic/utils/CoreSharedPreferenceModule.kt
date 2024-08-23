@@ -3,6 +3,7 @@ package tj.example.zavodteplic.utils
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,6 +28,7 @@ class CoreSharedPreference(private val sharedPreferences: SharedPreferences) {
     }
 
     fun setAccessToken(token : String?) {
+        Log.d("TAG", "setAccessToken: $token")
         sharedPreferences.edit().putString(TAGS.ACCESS_TOKEN,token).apply()
     }
 
@@ -35,7 +37,7 @@ class CoreSharedPreference(private val sharedPreferences: SharedPreferences) {
     }
 
     fun setUserId(id : Int) {
-        sharedPreferences.edit().putInt(TAGS.ACCESS_TOKEN,id).apply()
+        sharedPreferences.edit().putInt(TAGS.USER_ID,id).apply()
     }
 
 }

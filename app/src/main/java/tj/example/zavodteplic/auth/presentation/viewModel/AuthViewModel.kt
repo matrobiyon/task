@@ -1,5 +1,6 @@
 package tj.example.zavodteplic.auth.presentation.viewModel
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import tj.example.zavodteplic.auth.data.remote.model.CheckAuthCode
 import tj.example.zavodteplic.auth.data.repository.AuthRepository
 import tj.example.zavodteplic.auth.presentation.event.UIEvent
 import tj.example.zavodteplic.utils.CoreSharedPreference
@@ -31,6 +33,12 @@ class AuthViewModel @Inject constructor(
     var isLoggingLoading by mutableStateOf(false)
         private set
     var isLoggingLoaded by mutableStateOf(false)
+
+    var isCheckAuthLoading by mutableStateOf(false)
+        private set
+    var isCheckAuthLoaded by mutableStateOf(false)
+
+    var checkAuthCodeData by mutableStateOf<CheckAuthCode?>(null)
 
     private var _errorEvent = MutableSharedFlow<UIEvent>()
     val errorEvent = _errorEvent.asSharedFlow()
@@ -97,5 +105,37 @@ class AuthViewModel @Inject constructor(
             }
 
         }
+    }
+
+    fun checkAuthCode(phone: String, code: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            authRepository.checkAuthCode(phone, code).collectLatest { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        isCheckAuthLoading = false
+                        isCheckAuthLoaded = true
+                        checkAuthCodeData = result.data
+                        sharedPref.setAccessToken(result.data?.accessToken)
+                        sharedPref.setRefreshToken(result.data?.refreshToken)
+                        sharedPref.setUserId(result.data?.userId?:-1)
+                    }
+
+                    is Resource.Error -> {
+                        isCheckAuthLoading = false
+                        _errorEvent.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                    }
+
+                    is Resource.Loading -> {
+                        isCheckAuthLoading = true
+                    }
+                }
+            }
+        }
+    }
+
+    fun resetDatas() {
+        isRegisterLoaded = false
+        isLoggingLoaded = false
+        checkAuthCodeData = null
     }
 }

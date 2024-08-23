@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
@@ -94,10 +95,22 @@ fun AuthScreen(
         animationSpec = tween(durationMillis = 1000)
     )
 
-    if (viewModel.isRegisterLoaded || viewModel.isLoggingLoaded){
+    if (viewModel.isRegisterLoaded || viewModel.isLoggingLoaded) {
         offsetSms = 0.dp
         offsetAuth = width.dp
     }
+
+    if (viewModel.checkAuthCodeData?.isUserExists == true) {
+        navHostController.navigate(NavigationTags.CHATS_SCREEN) {
+            popUpTo(NavigationTags.AUTH_SCREEN) {
+                inclusive = true
+            }
+        }
+    } else if (viewModel.checkAuthCodeData?.isUserExists == false) {
+        isRegistered = true
+    }
+
+    var fullPhoneNumber by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -136,10 +149,12 @@ fun AuthScreen(
                     viewModel.showSnackbar(message)
                 },
                 registerUser = { phone, userName, name ->
-                    viewModel.registerUser(phone = phone, username =  userName,name = name)
+                    viewModel.registerUser(phone = phone, username = userName, name = name)
+                    fullPhoneNumber = phone
                 },
                 sendAuthCode = {
                     viewModel.sendAuthCode(it)
+                    fullPhoneNumber = it
                 }
             )
         }
@@ -166,8 +181,7 @@ fun AuthScreen(
                     modifier = Modifier.clickable {
                         offsetSms = (-width).dp
                         offsetAuth = 0.dp
-                        viewModel.isRegisterLoaded = false
-                        viewModel.isLoggingLoaded = false
+                        viewModel.resetDatas()
                     }
                 )
                 Text(
@@ -179,15 +193,19 @@ fun AuthScreen(
                         .padding(16.dp),
                     textAlign = TextAlign.Center
                 )
-                Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                    OutlinedTextField(value = smsCodeEntered, onValueChange = {
-                        if (it.length <= 6) smsCodeEntered = it
-                        if (it == "133337") navHostController.navigate(NavigationTags.CHATS_SCREEN) {
-                            popUpTo(NavigationTags.AUTH_SCREEN) {
-                                inclusive = true
-                            }
-                        }
-                    }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                if (viewModel.isCheckAuthLoading){
+                    CircularProgressIndicator()
+                }else {
+                    Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                        OutlinedTextField(
+                            value = smsCodeEntered,
+                            onValueChange = {
+                                if (it.length <= 6) smsCodeEntered = it
+                                if (it.length == 6) viewModel.checkAuthCode(fullPhoneNumber,it)
+                            },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        )
+                    }
                 }
             }
         }

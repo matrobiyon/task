@@ -4,8 +4,11 @@ import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 import tj.example.zavodteplic.auth.data.remote.AuthApi
+import tj.example.zavodteplic.auth.data.remote.model.CheckAuthCode
 import tj.example.zavodteplic.auth.data.remote.model.RegisterUser
 import tj.example.zavodteplic.auth.data.remote.model.SendAuthCode
+import tj.example.zavodteplic.auth.data.remote.model.request_body.CheckAuthCodeBody
+import tj.example.zavodteplic.auth.data.remote.model.request_body.RefreshTokenBody
 import tj.example.zavodteplic.auth.data.remote.model.request_body.RegisterUserRequestBody
 import tj.example.zavodteplic.auth.data.remote.model.request_body.SendAuthCodeBody
 import tj.example.zavodteplic.utils.CoreSharedPreference
@@ -40,7 +43,13 @@ class AuthRepository @Inject constructor(
             refreshToken = { refreshToken() }, sharedPref = sharedPref, gson = gson
         )
 
+    suspend fun checkAuthCode(phone: String, code: String): Flow<Resource<CheckAuthCode?>> =
+        callGenericRequest(request = { authApi.checkAuthCode(CheckAuthCodeBody(phone, code)) },
+            refreshToken = { refreshToken() }, sharedPref = sharedPref, gson = gson
+        )
+
     private suspend fun refreshToken(): Response<RegisterUser?> {
-        return authApi.refreshToken(sharedPref.getAccessToken() ?: "")
+        return authApi.refreshToken(RefreshTokenBody(sharedPref.getAccessToken() ?: "null"))
     }
+
 }

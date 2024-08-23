@@ -40,7 +40,7 @@ suspend fun <T> callGenericRequest(
             val res = refreshToken()
             if (res.isSuccessful) {
                 sharedPref.setAccessToken(res.body()?.accessToken)
-                sharedPref.setAccessToken(res.body()?.refreshToken)
+                sharedPref.setRefreshToken(res.body()?.refreshToken)
             }
             result = request()
             if (result.isSuccessful) {
