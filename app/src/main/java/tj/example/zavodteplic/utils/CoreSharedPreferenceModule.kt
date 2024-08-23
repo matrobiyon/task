@@ -1,13 +1,18 @@
 package tj.example.zavodteplic.utils
 
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import tj.example.zavodteplic.auth.di.AuthModule.TAGS
+import javax.inject.Singleton
 
-class CoreSharedPreference(context: Context) {
 
-    private val sharedPreferences =  context.getSharedPreferences(TAGS.CORE_SHARED_PREFERENCE, Context.MODE_PRIVATE)
+
+class CoreSharedPreference(private val sharedPreferences: SharedPreferences) {
 
     fun getAccessToken() : String? {
         return sharedPreferences.getString(TAGS.ACCESS_TOKEN,null)
@@ -24,6 +29,7 @@ class CoreSharedPreference(context: Context) {
     fun setAccessToken(token : String?) {
         sharedPreferences.edit().putString(TAGS.ACCESS_TOKEN,token).apply()
     }
+
     fun setRefreshToken(token : String?) {
         sharedPreferences.edit().putString(TAGS.REFRESH_TOKEN,token).apply()
     }

@@ -2,8 +2,7 @@ package tj.example.zavodteplic.auth.di
 
 import android.app.Application
 import android.content.Context
-import android.content.SharedPreferences
-import androidx.room.Room
+import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,8 +12,6 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import tj.example.zavodteplic.auth.data.local.CountryDB
-import tj.example.zavodteplic.auth.data.local.model.Country
 import tj.example.zavodteplic.auth.data.remote.AuthApi
 import tj.example.zavodteplic.auth.data.remote.interceptor.AuthInterceptor
 import tj.example.zavodteplic.auth.data.repository.AuthRepository
@@ -24,24 +21,42 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class AuthModule () {
+class AuthModule() {
 
     @Provides
     @Singleton
-    fun getInterceptor(@ApplicationContext context: Context) : Interceptor {
-        return AuthInterceptor(CoreSharedPreference(context).getAccessToken()?:"null")
+    fun provideCoreSharedPref(application: Application): CoreSharedPreference {
+        return CoreSharedPreference(
+            application.getSharedPreferences(
+                TAGS.CORE_SHARED_PREFERENCE,
+                Context.MODE_PRIVATE
+            )
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideGson() : Gson = Gson()
+
+    @Provides
+    @Singleton
+    fun getInterceptor(
+        @ApplicationContext context: Context,
+        sharedPreference: CoreSharedPreference
+    ): Interceptor {
+        return AuthInterceptor(sharedPreference.getAccessToken() ?: "null")
     }
 
 
     @Provides
     @Singleton
-    fun getClient(interceptor: Interceptor) : OkHttpClient {
+    fun getClient(interceptor: Interceptor): OkHttpClient {
         return OkHttpClient.Builder().addInterceptor(interceptor).build()
     }
 
     @Provides
     @Singleton
-    fun provideAuthApi(client: OkHttpClient) : AuthApi = Retrofit.Builder()
+    fun provideAuthApi(client: OkHttpClient): AuthApi = Retrofit.Builder()
         .baseUrl(Utils.BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .client(client)
@@ -50,8 +65,12 @@ class AuthModule () {
 
     @Provides
     @Singleton
-    fun providesAuthRepository(authApi: AuthApi, ) : AuthRepository {
-        return AuthRepository(authApi)
+    fun providesAuthRepository(
+        authApi: AuthApi,
+        sharedPreference: CoreSharedPreference,
+        gson: Gson
+    ): AuthRepository {
+        return AuthRepository(authApi, sharedPreference, gson)
     }
 
     object TAGS {

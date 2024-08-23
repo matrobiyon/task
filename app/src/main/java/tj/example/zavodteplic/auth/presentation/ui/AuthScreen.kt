@@ -94,7 +94,7 @@ fun AuthScreen(
         animationSpec = tween(durationMillis = 1000)
     )
 
-    if (viewModel.isRegisterLoaded){
+    if (viewModel.isRegisterLoaded || viewModel.isLoggingLoaded){
         offsetSms = 0.dp
         offsetAuth = width.dp
     }
@@ -126,7 +126,7 @@ fun AuthScreen(
         Card(modifier = Modifier) {
 
             DrawCardContent(wantToLoggIn = isRegistered,
-                isLoggingLoading = viewModel.loggInLoading,
+                isLoggingLoading = viewModel.isLoggingLoading,
                 isRegisterLoaded = viewModel.isRegisterLoaded,
                 isRegisterLoading = viewModel.isRegisterLoading,
                 changeIsRegistered = {
@@ -166,6 +166,8 @@ fun AuthScreen(
                     modifier = Modifier.clickable {
                         offsetSms = (-width).dp
                         offsetAuth = 0.dp
+                        viewModel.isRegisterLoaded = false
+                        viewModel.isLoggingLoaded = false
                     }
                 )
                 Text(
