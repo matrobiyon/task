@@ -41,7 +41,6 @@ fun DrawCardContent(
     wantToLoggIn: Boolean,
     isRegisterLoading: Boolean,
     isLoggingLoading: Boolean,
-    isRegisterLoaded: Boolean,
     changeIsRegistered: () -> Unit,
     showSnackbar: (message: String) -> Unit,
     registerUser: (phone: String, userName: String, name: String) -> Unit,
@@ -56,8 +55,6 @@ fun DrawCardContent(
 
     var fullPhoneNumber: String by rememberSaveable { mutableStateOf("") }
     var isPhoneNumberError by rememberSaveable { mutableStateOf(false) }
-
-    var smsCode by rememberSaveable { mutableStateOf("") }
 
     Column(
         modifier = Modifier

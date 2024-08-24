@@ -8,5 +8,5 @@ data class RegisterUser(
     @SerializedName("access_token")
     val accessToken : String,
     @SerializedName("user_id")
-    val userId: Int,
+    val userId: Int?,
 )

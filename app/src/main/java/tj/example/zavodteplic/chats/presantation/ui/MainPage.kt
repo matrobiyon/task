@@ -17,13 +17,11 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,17 +29,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import tj.example.zavodteplic.chats.presantation.models.NavigationBarItemMine
 import tj.example.zavodteplic.chats.presantation.ui.navigation.HomeNavigation
-import tj.example.zavodteplic.chats.presantation.viewModel.ChatsViewModel
 import tj.example.zavodteplic.ui.theme.ZavodTeplicTheme
 import tj.example.zavodteplic.utils.NavigationTags
 
 @Composable
-fun MainPage(
+fun MainScreen(
     prevNavController: NavController
 ) {
     ZavodTeplicTheme {
@@ -51,10 +47,6 @@ fun MainPage(
         ) {
             var selectedItemIndex by rememberSaveable {
                 mutableIntStateOf(0)
-            }
-
-            val snackbarState = remember {
-                SnackbarHostState()
             }
 
             val navController = rememberNavController()
@@ -93,7 +85,12 @@ fun MainPage(
                                 selected = selectedItemIndex == index,
                                 onClick = {
                                     selectedItemIndex = index
-                                    navController.navigate(item.title)
+                                    navController.navigate(item.title){
+                                        popUpTo(NavigationTags.MAIN_SCREEN){
+                                            inclusive = true
+                                        }
+
+                                    }
                                 },
                                 colors = NavigationBarItemColors(
                                     selectedIndicatorColor = Color.Transparent,

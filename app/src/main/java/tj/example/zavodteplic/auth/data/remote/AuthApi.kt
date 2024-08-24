@@ -13,7 +13,7 @@ import tj.example.zavodteplic.auth.data.remote.model.request_body.SendAuthCodeBo
 
 interface AuthApi {
 
-    @POST("api/v1/users/refresh-token")
+    @POST("api/v1/users/refresh-token/")
     suspend fun refreshToken(@Body refreshToken : RefreshTokenBody): Response<RegisterUser?>
 
     @POST("api/v1/users/register/")

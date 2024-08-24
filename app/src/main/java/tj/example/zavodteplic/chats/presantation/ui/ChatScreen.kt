@@ -16,9 +16,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,7 +44,7 @@ import tj.example.zavodteplic.R
 import tj.example.zavodteplic.chats.presantation.models.ChatMessage
 
 @Composable
-fun ChatScreen(navController: NavController) {
+fun ChatScreen(navController: NavController, name: String?, photo: String?) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -68,7 +68,7 @@ fun ChatScreen(navController: NavController) {
 
                     ) {
                     Image(
-                        painter = painterResource(id = R.drawable.image_1),
+                        painter = painterResource(id = photo?.toInt() ?: R.drawable.image_1),
                         contentDescription = null,
                         modifier = Modifier
                             .size(50.dp)
@@ -76,7 +76,7 @@ fun ChatScreen(navController: NavController) {
                             .border(2.dp, Color.Gray, CircleShape),
                     )
                     Text(
-                        text = "Matrobiyon Qosim",
+                        text = name ?: "",
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
@@ -105,7 +105,7 @@ fun ChatScreen(navController: NavController) {
                 state = LazyListState(messages.size - 1),
             ) {
                 items(messages.size) { message ->
-                    MessageBubble(messages[message])
+                    MessageBubble(messages[message], name, photo)
                 }
             }
 
@@ -125,9 +125,9 @@ fun ChatScreen(navController: NavController) {
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
                         Icon(
-                            imageVector = Icons.Filled.CheckCircle,
+                            painter = painterResource(id = R.drawable.ic_send),
                             contentDescription = "",
-                            tint = Color(0xFF008000),
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .size(30.dp, 30.dp)
                                 .clickable {
@@ -151,7 +151,7 @@ fun ChatScreen(navController: NavController) {
 }
 
 @Composable
-fun MessageBubble(message: ChatMessage) {
+fun MessageBubble(message: ChatMessage, name: String?, photo: String?) {
     Row(
         modifier = Modifier
             .padding(8.dp)
@@ -164,7 +164,13 @@ fun MessageBubble(message: ChatMessage) {
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier
                     .padding(end = 8.dp)
-                    .fillMaxWidth(0.7f)
+                    .fillMaxWidth(0.7f),
+                colors = CardColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = Color.White.copy(0.9f),
+                    disabledContentColor = Color.White,
+                    disabledContainerColor = Color.White
+                )
             ) {
                 Text(
                     text = message.content,
@@ -179,25 +185,25 @@ fun MessageBubble(message: ChatMessage) {
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier
                     .padding(start = 8.dp)
-                    .fillMaxWidth(0.7f)
+                    .fillMaxWidth(0.7f),
 
-            ) {
+                ) {
                 Row(
                     horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier.padding(8.dp)
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.image_1),
+                        painter = painterResource(id = photo?.toInt() ?: R.drawable.image_1),
                         contentDescription = "User profile",
                         modifier = Modifier
                             .size(48.dp)
                             .clip(CircleShape)
-                            .border(2.dp, Color.Gray, CircleShape)
                     )
                     Column(
                         modifier = Modifier.padding(start = 8.dp)
                     ) {
                         Text(
-                            text = "Qosim",
+                            text = name ?: "",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.primary
                         )

@@ -11,17 +11,32 @@ import retrofit2.Response
 import tj.example.zavodteplic.auth.data.remote.model.DetailParent
 import tj.example.zavodteplic.auth.data.remote.model.DetailParentMessage
 import tj.example.zavodteplic.auth.data.remote.model.RegisterUser
+import tj.example.zavodteplic.profile.data.local.UserDao
 import java.io.IOException
 
 suspend fun <T> callGenericRequest(
     request: suspend () -> Response<T>,
     refreshToken: suspend () -> Response<RegisterUser?>,
     sharedPref: CoreSharedPreference,
-    gson: Gson
+    gson: Gson,
+    dao: UserDao? = null,
+    emitFromCache : (suspend () -> T?)? = null
 ): Flow<Resource<T?>> = flow {
     emit(Resource.Loading())
+
+    if (dao != null) {
+        val data = emitFromCache?.let {
+            it() }
+        if (data != null) emit(Resource.Success(data))
+    }
+
     try {
         var result = request()
+        Log.d("TAG", "callGenericRequest:  ${result.code()}")
+        Log.d("TAG", "callGenericRequest:  ${result.errorBody()?.string()}")
+        Log.d("TAG", "callGenericRequest: ${sharedPref.getAccessToken()}")
+        Log.d("TAG", "callGenericRequest: ${sharedPref.getRefreshToken()}")
+
         if (result.isSuccessful) {
             delay(500)
             emit(Resource.Success(result.body()!!))
@@ -32,16 +47,25 @@ suspend fun <T> callGenericRequest(
                 )
             )
         } else if (result.code() == 401) {
+            Log.d("TAG", "callGenericRequest: 401")
             emit(
                 Resource.Error(
                     message = giveMeError(gson, result.errorBody()?.string() ?: "") ?: ""
                 )
             )
             val res = refreshToken()
+
+            Log.d("TAG", "callGenericRequest: ${sharedPref.getRefreshToken()}")
+
             if (res.isSuccessful) {
                 sharedPref.setAccessToken(res.body()?.accessToken)
                 sharedPref.setRefreshToken(res.body()?.refreshToken)
+                Log.d("TAG", "callGenericRequest: refresh ${sharedPref.getRefreshToken()}")
             }
+
+            Log.d("TAG", "callGenericRequest: refresh ${res.code()}")
+            Log.d("TAG", "callGenericRequest: refresh ${res.errorBody()?.string()}")
+
             result = request()
             if (result.isSuccessful) {
                 emit(Resource.Success(result.body()!!))

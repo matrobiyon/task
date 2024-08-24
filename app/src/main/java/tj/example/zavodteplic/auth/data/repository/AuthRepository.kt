@@ -49,7 +49,7 @@ class AuthRepository @Inject constructor(
         )
 
     private suspend fun refreshToken(): Response<RegisterUser?> {
-        return authApi.refreshToken(RefreshTokenBody(sharedPref.getAccessToken() ?: "null"))
+        return authApi.refreshToken(RefreshTokenBody(sharedPref.getRefreshToken() ?: "null"))
     }
 
 }

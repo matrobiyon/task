@@ -1,7 +1,6 @@
 package tj.example.zavodteplic.chats.presantation.ui
 
 import android.os.Build
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -22,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -42,8 +42,8 @@ fun ChatsScreen(prevNavController: NavController) {
 
         LazyColumn {
             items(list.size) {
-                ChatItem(chat = getTestChat()[it]) {
-                    prevNavController.navigate(NavigationTags.CHAT_SCREEN)
+                ChatItem(chat = list[it]) {
+                    prevNavController.navigate(NavigationTags.CHAT_SCREEN + "/${list[it].name}/${list[it].profileImage}")
                 }
             }
         }
@@ -85,7 +85,7 @@ fun ChatItem(chat: Chat, navigateToChat: () -> Unit) {
                 "20:43"
             }
             Text(
-                text = time, style = MaterialTheme.typography.labelSmall
+                text = time, style = MaterialTheme.typography.labelSmall, color = Color.Gray
             )
         }
     }

@@ -103,4 +103,7 @@ dependencies {
     implementation(libs.androidx.material)
     implementation(libs.jetpack.compose.country.code.picker.emoji)
 
+    //Coil - for loading images
+    implementation (libs.coil.compose)
+
 }

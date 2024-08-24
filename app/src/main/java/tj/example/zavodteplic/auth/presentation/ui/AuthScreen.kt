@@ -1,6 +1,5 @@
 package tj.example.zavodteplic.auth.presentation.ui
 
-import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -66,7 +65,7 @@ fun AuthScreen(
 
 
     LaunchedEffect(key1 = true) {
-        viewModel.errorEvent.collect() {
+        viewModel.errorEvent.collect {
             when (it) {
                 is UIEvent.ShowSnackbar -> {
                     scopeForSnackBar.launch {
@@ -102,8 +101,8 @@ fun AuthScreen(
     }
 
     if (viewModel.checkAuthCodeData?.isUserExists == true) {
-        navHostController.navigate(NavigationTags.CHATS_SCREEN) {
-            popUpTo(NavigationTags.AUTH_SCREEN) {
+        navHostController.navigate(NavigationTags.MAIN_SCREEN) {
+            popUpTo(NavigationTags.MAIN_SCREEN) {
                 inclusive = true
             }
         }
@@ -141,7 +140,6 @@ fun AuthScreen(
 
             DrawCardContent(wantToLoggIn = isRegistered,
                 isLoggingLoading = viewModel.isLoggingLoading,
-                isRegisterLoaded = viewModel.isRegisterLoaded,
                 isRegisterLoading = viewModel.isRegisterLoading,
                 changeIsRegistered = {
                     isRegistered = !isRegistered

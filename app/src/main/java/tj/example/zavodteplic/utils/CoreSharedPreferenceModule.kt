@@ -1,16 +1,7 @@
 package tj.example.zavodteplic.utils
 
-import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import tj.example.zavodteplic.auth.di.AuthModule.TAGS
-import javax.inject.Singleton
-
 
 
 class CoreSharedPreference(private val sharedPreferences: SharedPreferences) {
