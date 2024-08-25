@@ -11,7 +11,6 @@ import retrofit2.Response
 import tj.example.zavodteplic.auth.data.remote.model.DetailParent
 import tj.example.zavodteplic.auth.data.remote.model.DetailParentMessage
 import tj.example.zavodteplic.auth.data.remote.model.RegisterUser
-import tj.example.zavodteplic.profile.data.local.UserDao
 import java.io.IOException
 
 suspend fun <T> callGenericRequest(
@@ -19,17 +18,16 @@ suspend fun <T> callGenericRequest(
     refreshToken: suspend () -> Response<RegisterUser?>,
     sharedPref: CoreSharedPreference,
     gson: Gson,
-    dao: UserDao? = null,
     emitFromCache: (suspend () -> T?)? = null,
 ): Flow<Resource<T?>> = flow {
     emit(Resource.Loading())
 
-    if (dao != null) {
-        val data = emitFromCache?.let {
-            it()
-        }
-        if (data != null) emit(Resource.Success(data))
+    val data = emitFromCache?.let {
+        it()
     }
+
+    if (data != null) emit(Resource.Success(data))
+
 
     try {
         var result = request()
@@ -64,7 +62,6 @@ suspend fun <T> callGenericRequest(
 
             Log.d("TAG", "callGenericRequest: refresh ${res.code()}")
             Log.d("TAG", "callGenericRequest: refresh ${res.errorBody()?.string()}")
-
 
             result = request()
 

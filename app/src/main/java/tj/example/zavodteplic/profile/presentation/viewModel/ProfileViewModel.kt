@@ -23,7 +23,7 @@ import tj.example.zavodteplic.profile.presentation.model.ProfileDataItem
 import tj.example.zavodteplic.profile.presentation.model.ProfileDataState
 import tj.example.zavodteplic.utils.Resource
 
-class ProfileViewModel (
+class ProfileViewModel(
     private val repository: ProfileRepository
 ) : ViewModel() {
 
@@ -32,6 +32,8 @@ class ProfileViewModel (
 
     var isProfileLoading by mutableStateOf(false)
         private set
+
+    var isEditing by mutableStateOf(false)
 
     init {
         getUser()
@@ -56,16 +58,20 @@ class ProfileViewModel (
                     }
 
                     is Resource.Error -> {
-                        if (result.recreateViewModel){
+                        if (result.recreateViewModel) {
                             Log.d("TAG", "getUser: Recreate ViewModel")
 
                             _errorEvent.emit(UIEvent.RecreateViewModel)
-                        }else{
+                        } else {
                             profileData = profileData.copy(
                                 data = result.data?.profileData,
                                 isLoading = false,
                             )
-                            _errorEvent.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                            _errorEvent.emit(
+                                UIEvent.ShowSnackbar(
+                                    result.message ?: "Unknown error"
+                                )
+                            )
                         }
                     }
 
@@ -79,6 +85,20 @@ class ProfileViewModel (
                     else -> {}
                 }
             }
+        }
+    }
+
+    fun saveEdit(
+        name: String,
+        userName: String,
+        birthday: String?,
+        city: String?,
+        vk: String?,
+        instagram: String?,
+        status: String?
+    ) {
+        viewModelScope.launch {
+            repository.saveEdit(name, userName, birthday, city, vk, instagram, status)
         }
     }
 

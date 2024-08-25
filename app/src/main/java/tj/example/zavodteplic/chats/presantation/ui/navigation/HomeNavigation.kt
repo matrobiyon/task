@@ -40,7 +40,7 @@ fun HomeNavigation(
         }, popExitTransition = {
             scaleOutOfContainer()
         }) {
-            ProfileScreen(snackbarHostState = snackbarHostState)
+            ProfileScreen(snackbarHostState = snackbarHostState, prevNavController)
         }
     }
 

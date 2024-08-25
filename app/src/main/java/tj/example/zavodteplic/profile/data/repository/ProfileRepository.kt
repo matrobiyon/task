@@ -9,6 +9,7 @@ import tj.example.zavodteplic.profile.data.local.ProfileData
 import tj.example.zavodteplic.profile.data.local.UserDao
 import tj.example.zavodteplic.profile.data.remote.model.ProfileApi
 import tj.example.zavodteplic.profile.presentation.model.ProfileDataParent
+import tj.example.zavodteplic.profile.presentation.model.body.EditProfileBody
 import tj.example.zavodteplic.utils.CoreSharedPreference
 import tj.example.zavodteplic.utils.Resource
 import tj.example.zavodteplic.utils.callGenericRequest
@@ -27,7 +28,6 @@ class ProfileRepository(
             refreshToken = { refreshToken() },
             sharedPref = sharedPreference,
             gson = gson,
-            dao = dao,
             emitFromCache = {
                 val res = dao?.getUserData()
                 if (res?.isNotEmpty() == true) {
@@ -42,4 +42,33 @@ class ProfileRepository(
 
     private suspend fun refreshToken(): Response<RegisterUser?> =
         api.refreshToken(RefreshTokenBody(sharedPreference.getRefreshToken() ?: "null"))
+
+    suspend fun saveEdit(
+        name: String,
+        userName: String,
+        birthday: String?,
+        city: String?,
+        vk: String?,
+        instagram: String?,
+        status: String?
+    ) {
+        callGenericRequest(
+            request = {
+                api.saveEdit(
+                    EditProfileBody(
+                        name,
+                        userName,
+                        birthday,
+                        city,
+                        vk,
+                        instagram,
+                        status
+                    )
+                )
+            },
+            refreshToken = { refreshToken() },
+            sharedPref = sharedPreference,
+            gson = gson,
+        )
+    }
 }
