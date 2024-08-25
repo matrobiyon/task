@@ -5,6 +5,7 @@ import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.request.CachePolicy
 import dagger.hilt.android.HiltAndroidApp
+import tj.example.zavodteplic.profile.data.local.UserDB
 
 
 @HiltAndroidApp
@@ -15,4 +16,12 @@ class MainApplication : Application(),ImageLoaderFactory {
             .diskCachePolicy(CachePolicy.ENABLED)
             .build()
     }
+
+    var userDb : UserDB? = null
+
+    override fun onCreate() {
+        super.onCreate()
+        userDb = UserDB.getDatabase(this)
+    }
+
 }

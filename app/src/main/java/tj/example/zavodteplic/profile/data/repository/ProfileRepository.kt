@@ -3,7 +3,6 @@ package tj.example.zavodteplic.profile.data.repository
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
-import tj.example.zavodteplic.auth.data.remote.AuthApi
 import tj.example.zavodteplic.auth.data.remote.model.RegisterUser
 import tj.example.zavodteplic.auth.data.remote.model.request_body.RefreshTokenBody
 import tj.example.zavodteplic.profile.data.local.ProfileData
@@ -17,10 +16,9 @@ import tj.example.zavodteplic.utils.callGenericRequest
 
 class ProfileRepository(
     private val api: ProfileApi,
-    private val authApi: AuthApi,
-    private val dao: UserDao,
+    private val dao: UserDao?,
     private val sharedPreference: CoreSharedPreference,
-    private val gson: Gson
+    private val gson: Gson = Gson(),
 ) {
 
     suspend fun getUser(): Flow<Resource<ProfileDataParent?>> =
@@ -31,17 +29,17 @@ class ProfileRepository(
             gson = gson,
             dao = dao,
             emitFromCache = {
-                val res = dao.getUserData()
-                if (res.isNotEmpty()) {
+                val res = dao?.getUserData()
+                if (res?.isNotEmpty() == true) {
                     ProfileDataParent(res.first())
                 } else null
             }
         )
 
     suspend fun saveUserLocally(user: ProfileData?) {
-        if (user != null) dao.saveUser(user)
+        if (user != null) dao?.saveUser(user)
     }
 
     private suspend fun refreshToken(): Response<RegisterUser?> =
-        authApi.refreshToken(RefreshTokenBody(sharedPreference.getRefreshToken() ?: "null"))
+        api.refreshToken(RefreshTokenBody(sharedPreference.getRefreshToken() ?: "null"))
 }

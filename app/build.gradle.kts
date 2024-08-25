@@ -77,6 +77,7 @@ dependencies {
 
     //Retrofit and JWT
     implementation(libs.retrofit2)
+    implementation(libs.logging.interceptor)
 
     //GSON converter
     implementation(libs.converter.gson)

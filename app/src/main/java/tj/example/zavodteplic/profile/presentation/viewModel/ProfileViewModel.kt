@@ -1,25 +1,29 @@
 package tj.example.zavodteplic.profile.presentation.viewModel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import tj.example.zavodteplic.MainApplication
 import tj.example.zavodteplic.R
 import tj.example.zavodteplic.auth.presentation.event.UIEvent
 import tj.example.zavodteplic.profile.data.local.ProfileData
 import tj.example.zavodteplic.profile.data.repository.ProfileRepository
+import tj.example.zavodteplic.profile.data.repository.ProfileRepositoryProvide
 import tj.example.zavodteplic.profile.presentation.model.ProfileDataItem
 import tj.example.zavodteplic.profile.presentation.model.ProfileDataState
 import tj.example.zavodteplic.utils.Resource
-import javax.inject.Inject
 
-@HiltViewModel
-class ProfileViewModel @Inject constructor(
+class ProfileViewModel (
     private val repository: ProfileRepository
 ) : ViewModel() {
 
@@ -28,6 +32,12 @@ class ProfileViewModel @Inject constructor(
 
     var isProfileLoading by mutableStateOf(false)
         private set
+
+    init {
+        getUser()
+        Log.d("TAG", "profileViewModel: recreate ")
+    }
+
 
     private var _errorEvent = MutableSharedFlow<UIEvent>()
     val errorEvent = _errorEvent.asSharedFlow()
@@ -46,11 +56,17 @@ class ProfileViewModel @Inject constructor(
                     }
 
                     is Resource.Error -> {
-                        profileData = profileData.copy(
-                            data = result.data?.profileData,
-                            isLoading = false,
-                        )
-                        _errorEvent.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                        if (result.recreateViewModel){
+                            Log.d("TAG", "getUser: Recreate ViewModel")
+
+                            _errorEvent.emit(UIEvent.RecreateViewModel)
+                        }else{
+                            profileData = profileData.copy(
+                                data = result.data?.profileData,
+                                isLoading = false,
+                            )
+                            _errorEvent.emit(UIEvent.ShowSnackbar(result.message ?: "Unknown error"))
+                        }
                     }
 
                     is Resource.Loading -> {
@@ -62,6 +78,17 @@ class ProfileViewModel @Inject constructor(
 
                     else -> {}
                 }
+            }
+        }
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as MainApplication)
+                ProfileViewModel(
+                    ProfileRepositoryProvide.provideProfileRepository(application)
+                )
             }
         }
     }

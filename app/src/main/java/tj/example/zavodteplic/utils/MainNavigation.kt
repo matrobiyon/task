@@ -51,7 +51,7 @@ fun MainNavigation(navController: NavHostController, snackbarHostState: Snackbar
         }, popExitTransition = {
             scaleOutOfContainer()
         }) {
-            MainScreen(navController)
+            MainScreen(navController, snackbarHostState)
         }
 
         composable(route = NavigationTags.CHAT_SCREEN + "/{${NavigationTags.NAME_ARG}}/{${NavigationTags.IMAGE_ARG}}",

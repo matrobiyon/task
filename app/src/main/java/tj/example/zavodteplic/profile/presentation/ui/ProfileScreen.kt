@@ -1,5 +1,6 @@
 package tj.example.zavodteplic.profile.presentation.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,8 +19,14 @@ import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,20 +35,45 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import kotlinx.coroutines.launch
 import tj.example.zavodteplic.R
+import tj.example.zavodteplic.auth.presentation.event.UIEvent
 import tj.example.zavodteplic.profile.presentation.ui.components.DrawProfileCardContent
 import tj.example.zavodteplic.profile.presentation.ui.components.DrawProfileItems
 import tj.example.zavodteplic.profile.presentation.viewModel.ProfileViewModel
 import tj.example.zavodteplic.profile.presentation.viewModel.getProfileItems
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
+fun ProfileScreen(snackbarHostState: SnackbarHostState) {
 
+    var viewModelKey by remember {
+        mutableStateOf("")
+    }
 
+    Log.d("TAG", "ProfileScreen: ")
+
+    val viewModel: ProfileViewModel =
+        viewModel(factory = ProfileViewModel.Factory, key = viewModelKey)
+
+    val scopeForSnackBar = rememberCoroutineScope()
     LaunchedEffect(key1 = true) {
-        viewModel.getUser()
+        viewModel.errorEvent.collect {
+            when (it) {
+                is UIEvent.ShowSnackbar -> {
+                    if (it.message != ""){
+                        scopeForSnackBar.launch {
+                            snackbarHostState.showSnackbar(it.message)
+                        }
+                    }
+                }
+
+                is UIEvent.RecreateViewModel -> {
+                    viewModelKey = if (viewModelKey == "") "$viewModelKey+" else ""
+                }
+            }
+        }
     }
 
     val data = viewModel.profileData.data

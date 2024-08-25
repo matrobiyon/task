@@ -1,5 +1,6 @@
 package tj.example.zavodteplic.chats.presantation.ui.navigation
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -14,7 +15,7 @@ import tj.example.zavodteplic.utils.animation.scaleOutOfContainer
 
 @Composable
 fun HomeNavigation(
-    navController: NavHostController, prevNavController: NavController
+    navController: NavHostController, prevNavController: NavController,snackbarHostState: SnackbarHostState
 ) {
 
     NavHost(navController = navController, startDestination = NavigationTags.CHATS_SCREEN) {
@@ -39,7 +40,7 @@ fun HomeNavigation(
         }, popExitTransition = {
             scaleOutOfContainer()
         }) {
-            ProfileScreen()
+            ProfileScreen(snackbarHostState = snackbarHostState)
         }
     }
 

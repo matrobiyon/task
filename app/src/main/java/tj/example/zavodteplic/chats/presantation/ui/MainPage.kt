@@ -17,6 +17,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,7 +39,8 @@ import tj.example.zavodteplic.utils.NavigationTags
 
 @Composable
 fun MainScreen(
-    prevNavController: NavController
+    prevNavController: NavController,
+    snackbarHostState: SnackbarHostState
 ) {
     ZavodTeplicTheme {
         Surface(
@@ -86,7 +88,7 @@ fun MainScreen(
                                 onClick = {
                                     selectedItemIndex = index
                                     navController.navigate(item.title){
-                                        popUpTo(NavigationTags.MAIN_SCREEN){
+                                        popUpTo(NavigationTags.CHATS_SCREEN){
                                             inclusive = true
                                         }
 
@@ -126,7 +128,8 @@ fun MainScreen(
                 ) {
                     HomeNavigation(
                         navController = navController,
-                        prevNavController = prevNavController
+                        prevNavController = prevNavController,
+                        snackbarHostState = snackbarHostState
                     )
                 }
             }

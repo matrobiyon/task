@@ -72,6 +72,10 @@ fun AuthScreen(
                         snackbarHostState.showSnackbar(it.message)
                     }
                 }
+
+                else -> {
+                    //Recreate View Model is not neccessary here
+                }
             }
         }
     }

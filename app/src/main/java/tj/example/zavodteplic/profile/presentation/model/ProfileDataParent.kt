@@ -5,5 +5,5 @@ import tj.example.zavodteplic.profile.data.local.ProfileData
 
 data class ProfileDataParent(
     @SerializedName("profile_data")
-    val profileData: ProfileData?
+    val profileData: ProfileData?,
 )

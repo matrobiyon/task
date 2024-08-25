@@ -20,13 +20,14 @@ suspend fun <T> callGenericRequest(
     sharedPref: CoreSharedPreference,
     gson: Gson,
     dao: UserDao? = null,
-    emitFromCache : (suspend () -> T?)? = null
+    emitFromCache: (suspend () -> T?)? = null,
 ): Flow<Resource<T?>> = flow {
     emit(Resource.Loading())
 
     if (dao != null) {
         val data = emitFromCache?.let {
-            it() }
+            it()
+        }
         if (data != null) emit(Resource.Success(data))
     }
 
@@ -47,7 +48,6 @@ suspend fun <T> callGenericRequest(
                 )
             )
         } else if (result.code() == 401) {
-            Log.d("TAG", "callGenericRequest: 401")
             emit(
                 Resource.Error(
                     message = giveMeError(gson, result.errorBody()?.string() ?: "") ?: ""
@@ -55,18 +55,19 @@ suspend fun <T> callGenericRequest(
             )
             val res = refreshToken()
 
-            Log.d("TAG", "callGenericRequest: ${sharedPref.getRefreshToken()}")
-
             if (res.isSuccessful) {
                 sharedPref.setAccessToken(res.body()?.accessToken)
                 sharedPref.setRefreshToken(res.body()?.refreshToken)
-                Log.d("TAG", "callGenericRequest: refresh ${sharedPref.getRefreshToken()}")
+                emit(Resource.Error(recreateViewModel = true))
+                emit(Resource.Error(recreateViewModel = false))
             }
 
             Log.d("TAG", "callGenericRequest: refresh ${res.code()}")
             Log.d("TAG", "callGenericRequest: refresh ${res.errorBody()?.string()}")
 
+
             result = request()
+
             if (result.isSuccessful) {
                 emit(Resource.Success(result.body()!!))
             } else {
@@ -97,7 +98,6 @@ suspend fun <T> callGenericRequest(
 }
 
 fun giveMeError(gson: Gson, errorJson: String): String? {
-    Log.d("TAG", "giveMeError: $errorJson")
     if (errorJson == "") return ""
     return try {
         ((gson.fromJson(errorJson, DetailParent::class.java)) as DetailParent).detail.first().msg
