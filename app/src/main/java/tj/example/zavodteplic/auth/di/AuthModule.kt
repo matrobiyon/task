@@ -9,6 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import tj.example.zavodteplic.auth.data.remote.AuthApi
@@ -35,7 +36,7 @@ class AuthModule {
 
     @Provides
     @Singleton
-    fun provideGson() : Gson = Gson()
+    fun provideGson(): Gson = Gson()
 
     @Provides
     @Singleton
@@ -49,7 +50,11 @@ class AuthModule {
     @Provides
     @Singleton
     fun getClient(interceptor: Interceptor): OkHttpClient {
-        return OkHttpClient.Builder().addInterceptor(interceptor).build()
+        val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.HEADERS
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+        return OkHttpClient.Builder().addInterceptor(interceptor).addInterceptor(loggingInterceptor)
+            .build()
     }
 
     @Provides

@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface UserDao {
@@ -13,5 +14,11 @@ interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveUser(user : ProfileData)
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    fun updateUser(user : ProfileData)
+
+    @Query("DELETE FROM user")
+    fun clearTable()
 
 }

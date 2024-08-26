@@ -26,18 +26,22 @@ class ProfileRepositoryProvide {
             )
         }
 
-        private fun provideProfileApi(application: Application): ProfileApi {
-
+        fun getClient(application: Application) : OkHttpClient {
             val interceptor = AuthInterceptor(getSharedPref(application).getAccessToken() ?: "null")
             val loggingInterceptor = HttpLoggingInterceptor()
             loggingInterceptor.level = HttpLoggingInterceptor.Level.HEADERS
+            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
 
-            val client = OkHttpClient.Builder().addInterceptor(interceptor)
+            return OkHttpClient.Builder().addInterceptor(interceptor)
                 .addInterceptor(loggingInterceptor).build()
+        }
+
+        private fun provideProfileApi(application: Application): ProfileApi {
+
 
             return Retrofit.Builder().baseUrl(Utils.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
-                .client(client)
+                .client(getClient(application))
                 .build()
                 .create(ProfileApi::class.java)
 

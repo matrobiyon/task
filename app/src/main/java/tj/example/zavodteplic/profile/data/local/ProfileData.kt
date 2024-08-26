@@ -7,7 +7,6 @@ import com.google.gson.annotations.SerializedName
 @Entity("user")
 data class ProfileData(
     val avatar: String? = null,
-    val avatars: String? = null,
     val birthday: String? = null,
     val city: String? = null,
     @SerializedName("completed_task")

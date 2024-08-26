@@ -9,7 +9,6 @@ import tj.example.zavodteplic.auth.presentation.ui.AuthScreen
 import tj.example.zavodteplic.auth.presentation.ui.SplashScreen
 import tj.example.zavodteplic.chats.presantation.ui.ChatScreen
 import tj.example.zavodteplic.chats.presantation.ui.MainScreen
-import tj.example.zavodteplic.profile.presentation.ui.EditProfileScreen
 import tj.example.zavodteplic.utils.animation.ScaleTransitionDirection
 import tj.example.zavodteplic.utils.animation.scaleIntoContainer
 import tj.example.zavodteplic.utils.animation.scaleOutOfContainer
@@ -17,7 +16,7 @@ import tj.example.zavodteplic.utils.animation.scaleOutOfContainer
 @Composable
 fun MainNavigation(navController: NavHostController, snackbarHostState: SnackbarHostState) {
 
-    NavHost(navController = navController, startDestination = NavigationTags.MAIN_SCREEN) {
+    NavHost(navController = navController, startDestination = NavigationTags.SPLASH_SCREEN) {
         composable(route = NavigationTags.SPLASH_SCREEN, enterTransition = {
             scaleIntoContainer()
         }, exitTransition = {
@@ -28,7 +27,6 @@ fun MainNavigation(navController: NavHostController, snackbarHostState: Snackbar
             scaleOutOfContainer()
         }) {
             SplashScreen(navController)
-
         }
 
         composable(route = NavigationTags.AUTH_SCREEN, enterTransition = {
@@ -72,22 +70,6 @@ fun MainNavigation(navController: NavHostController, snackbarHostState: Snackbar
             val image = it.arguments?.getString(NavigationTags.IMAGE_ARG)
             ChatScreen(navController, name, image)
         }
-
-        composable(route = NavigationTags.EDIT_SCREEN,
-            enterTransition = {
-                scaleIntoContainer()
-            },
-            exitTransition = {
-                scaleOutOfContainer(direction = ScaleTransitionDirection.INWARDS)
-            },
-            popEnterTransition = {
-                scaleIntoContainer(direction = ScaleTransitionDirection.OUTWARDS)
-            },
-            popExitTransition = {
-                scaleOutOfContainer()
-            }) {
-            EditProfileScreen(navController)
-        }
     }
 
 
@@ -100,7 +82,6 @@ object NavigationTags {
     const val PROFILE_SCREEN = "Profile"
     const val CHATS_SCREEN = "Chats"
     const val CHAT_SCREEN = "Chat"
-    const val EDIT_SCREEN = "Edit"
 
 
     const val NAME_ARG = "name_arg"
